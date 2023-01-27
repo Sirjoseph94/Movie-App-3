@@ -2,28 +2,32 @@
 import { useEffect, useState } from 'react';
 import './App.css';
 import MovieCard from './MovieCard';
+import SearchedMovie from './SearchedMovie';
 
 function App() {
 
-  const API_URL = "https://api.themoviedb.org/3/movie/popular?api_key=fa1192549721df01a1fb28a7788e6608" 
-  const API_SEARCH = "https://api.themoviedb.org/3/search/movie?api_key=fa1192549721df01a1fb28a7788e6608&query="
+  const API_URL = "https://imdb-api.com/API/MostPopularMovies/k_gz5fqjj1"
+  const API_SEARCH = "https://imdb-api.com/API/Search/k_gz5fqjj1/"
 
   const [movies, setMovies] = useState([])
   const [term, setTerm] = useState("")
+  const [isSearch, setIsSearch] = useState(false)
+  const [searched, setSearched] = useState([])
 
   useEffect(() => {
-    fetch(API_URL).then(res => res.json()).then(data => setMovies(data.results))
+    fetch(API_URL).then(res => res.json()).then(data => setMovies(data.items))
   }, [])
 
-  console.log(movies)
 
   const handleSearch = (e) => {
     e.preventDefault()
-
+    setIsSearch(true)
     fetch(API_SEARCH + term)
-    .then(res => res.json())
-    .then(data => setMovies(data.results))
+      .then(res => res.json())
+      .then(data => setSearched(data.results))
   }
+
+  console.log("terms", searched)
   return (
     <div className="App">
       <div className='search_nav'>
@@ -33,20 +37,25 @@ function App() {
 
         <div className='search_box'>
           <form onSubmit={handleSearch} >
-            <input onChange= { e => setTerm(e.target.value)} />
+            <input onChange={e => setTerm(e.target.value)} />
             <button>Search</button>
           </form>
         </div>
       </div>
 
       <div className='movies'>
-        {movies.map((movie) => (
+        {!isSearch ? movies.map((movie) => (
+          <MovieCard {...movie} />
+        ))
+          :
+          searched.map((movie) => (
+            <SearchedMovie {...movie} />
+          ))
+        }
 
-          <MovieCard {...movie}/>
-        ))}
       </div>
 
-       
+
     </div>
   );
 }
